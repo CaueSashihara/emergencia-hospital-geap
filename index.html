@@ -97,6 +97,7 @@ container.innerHTML='';
 places.forEach(place=>{
 const card=document.createElement('div');
 card.className='place-card';
+const placeJson=JSON.stringify(place).replace(/"/g,'&quot;');
 card.innerHTML=`
 <div class="place-name">${place.name}</div>
 <div class="place-info">
@@ -105,8 +106,8 @@ card.innerHTML=`
 ${place.distance?`<div class="info-item"><span class="distance">${place.distance.toFixed(1)} km</span></div>`:''}
 </div>
 <div class="action-buttons">
-<button class="action-btn uber-btn" onclick='requestUber(${JSON.stringify(place)})'>🚗 UBER</button>
-<button class="action-btn whatsapp-btn" onclick='notifyContact(${JSON.stringify(place)})'>💬 AVISAR</button>
+<button class="action-btn uber-btn" onclick='requestUber(${placeJson})'>🚗 UBER</button>
+<button class="action-btn whatsapp-btn" onclick='notifyContact(${placeJson})'>💬 AVISAR</button>
 </div>
 `;
 container.appendChild(card);
@@ -124,5 +125,4 @@ document.getElementById('labs-list').classList.add('hidden');
 function showLabs(){
 currentView='labs';
 document.querySelectorAll('.toggle-btn').forEach(btn=>btn.classList.remove('active'));
-event.target.classList.add('active');
-document.getElementById('labs
+event.target
