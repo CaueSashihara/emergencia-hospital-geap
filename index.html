@@ -83,4 +83,46 @@ body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#
 const hospitals=[{name:"Hospital Vitória",address:"Vila Regente Feijó",phone:"(11) 3581-1000",lat:-23.555,lng:-46.619},{name:"Hospital Sancta Maggiore Paraíso",address:"Paraíso",phone:"(11) 3474-1100",lat:-23.576,lng:-46.643},{name:"Hospital São Camilo Pompeia",address:"Pompeia",phone:"(11) 3677-3000",lat:-23.528,lng:-46.681},{name:"Hospital Nove de Julho",address:"Bela Vista",phone:"(11) 3147-9000",lat:-23.557,lng:-46.649},{name:"Hospital Villa Lobos",address:"Alto de Pinheiros",phone:"(11) 2146-8000",lat:-23.546,lng:-46.707},{name:"Hospital São Luiz Itaim",address:"Itaim Bibi",phone:"(11) 3040-0300",lat:-23.589,lng:-46.679},{name:"Hospital Albert Einstein Morumbi",address:"Morumbi",phone:"(11) 2151-1233",lat:-23.598,lng:-46.713},{name:"Hospital Sírio-Libanês",address:"Bela Vista",phone:"(11) 3155-1000",lat:-23.555,lng:-46.655},{name:"Hospital Santa Catarina",address:"Paulista",phone:"(11) 3016-0000",lat:-23.560,lng:-46.659},{name:"Hospital Alemão Oswaldo Cruz",address:"Paraíso",phone:"(11) 3549-0000",lat:-23.573,lng:-46.644},{name:"BP Hospital Beneficência Portuguesa",address:"Bela Vista",phone:"(11) 3505-1000",lat:-23.558,lng:-46.644},{name:"Hospital Santa Cruz",address:"Vila Mariana",phone:"(11) 5080-5500",lat:-23.582,lng:-46.635},{name:"Hospital Samaritano Higienópolis",address:"Higienópolis",phone:"(11) 3821-5300",lat:-23.543,lng:-46.654},{name:"Hospital Samaritano Paulista",address:"Bela Vista",phone:"(11) 3821-5300",lat:-23.560,lng:-46.653},{name:"Hospital São Camilo Santana",address:"Santana",phone:"(11) 2021-5000",lat:-23.504,lng:-46.626},{name:"Hospital São Luiz Morumbi",address:"Morumbi",phone:"(11) 3040-0300",lat:-23.614,lng:-46.700},{name:"Hospital São Paulo",address:"Vila Clementino",phone:"(11) 5576-4000",lat:-23.598,lng:-46.645},{name:"Hospital Edmundo Vasconcelos",address:"Vila Mariana",phone:"(11) 5080-4000",lat:-23.594,lng:-46.636},{name:"Hospital Santa Paula",address:"Água Funda",phone:"(11) 3040-8800",lat:-23.623,lng:-46.632},{name:"Hospital Santa Isabel",address:"Vila Isabel",phone:"(11) 2137-6000",lat:-23.577,lng:-46.627},{name:"Hospital Leforte Morumbi",address:"Morumbi",phone:"(11) 3345-2000",lat:-23.608,lng:-46.708},{name:"Hospital e Maternidade Santa Joana",address:"Paraíso",phone:"(11) 5080-6000",lat:-23.574,lng:-46.640},{name:"Hospital Sepaco",address:"Água Branca",phone:"(11) 3876-8500",lat:-23.521,lng:-46.683},{name:"CEJAM UPA Consolação",address:"Consolação",phone:"(11) 3125-5000",lat:-23.549,lng:-46.656},{name:"Hospital Igesp",address:"Vila Mariana",phone:"(11) 5549-2000",lat:-23.582,lng:-46.636},{name:"Hospital Vital Brazil",address:"Butantã",phone:"(11) 3723-9000",lat:-23.577,lng:-46.718}];
 const labs=[{name:"Femme Lab - Mooca",address:"Mooca",phone:"(11) 3050-9043",lat:-23.550,lng:-46.5928},{name:"Femme Lab - Barra Funda",address:"Barra Funda",phone:"(11) 3392-7000",lat:-23.528,lng:-46.667},{name:"Femme Lab - Tatuapé",address:"Tatuapé",phone:"(11) 2091-4040",lat:-23.535,lng:-46.576},{name:"Femme Lab - Pinheiros",address:"Pinheiros",phone:"(11) 3813-8181",lat:-23.567,lng:-46.688},{name:"Femme Lab - Santana",address:"Santana",phone:"(11) 2977-9797",lat:-23.508,lng:-46.630},{name:"Femme Lab - Santo Amaro",address:"Santo Amaro",phone:"(11) 5686-6060",lat:-23.652,lng:-46.705},{name:"Femme Lab - Penha",address:"Penha",phone:"(11) 2741-4141",lat:-23.530,lng:-46.543}];
 let userLat,userLng,pendingHospital=null,currentView='hospitals';
-function calcDistance(lat1,lng1,lat2,lng2){const dLng=(lng2-lng1)*Math.PI/180;const dLat=(lat2-lat1)*Math.PI/180;return Math.sqrt(dLat*dLat+dLng*dL
+
+function calcDistance(lat1,lng1,lat2,lng2){
+const dLat=(lat2-lat1)*Math.PI/180;
+const dLng=(lng2-lng1)*Math.PI/180;
+const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+return 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function renderPlaces(places,containerId){
+const container=document.getElementById(containerId);
+container.innerHTML='';
+places.forEach(place=>{
+const card=document.createElement('div');
+card.className='place-card';
+card.innerHTML=`
+<div class="place-name">${place.name}</div>
+<div class="place-info">
+<div class="info-item">📍 ${place.address}</div>
+<div class="info-item">📞 ${place.phone}</div>
+${place.distance?`<div class="info-item"><span class="distance">${place.distance.toFixed(1)} km</span></div>`:''}
+</div>
+<div class="action-buttons">
+<button class="action-btn uber-btn" onclick='requestUber(${JSON.stringify(place)})'>🚗 UBER</button>
+<button class="action-btn whatsapp-btn" onclick='notifyContact(${JSON.stringify(place)})'>💬 AVISAR</button>
+</div>
+`;
+container.appendChild(card);
+});
+}
+
+function showHospitals(){
+currentView='hospitals';
+document.querySelectorAll('.toggle-btn').forEach(btn=>btn.classList.remove('active'));
+event.target.classList.add('active');
+document.getElementById('hospitals-list').classList.remove('hidden');
+document.getElementById('labs-list').classList.add('hidden');
+}
+
+function showLabs(){
+currentView='labs';
+document.querySelectorAll('.toggle-btn').forEach(btn=>btn.classList.remove('active'));
+event.target.classList.add('active');
+document.getElementById('labs
